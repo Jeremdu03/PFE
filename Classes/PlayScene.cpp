@@ -3,7 +3,7 @@
 #include <random>
 
 std::random_device rdev{};
-std::minstd_rand                             Engine{rdev()};
+std::minstd_rand Engine{rdev()};
 USING_NS_CC;
 
 static int pressNumber;
@@ -37,6 +37,7 @@ bool PlayScene::init()
 
     pressNumber = 0;
     isIn = false;
+    progression = 0;
 
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
@@ -63,11 +64,16 @@ bool PlayScene::init()
     pressLabel = Label::createWithTTF(std::to_string(pressNumber), "fonts/Marker Felt.ttf", 36);
 
     // position the label on the center of the screen
-    pressLabel->setPosition(Vec2(origin.x + visibleSize.width/2,
+    pressLabel->setPosition(Vec2(origin.x + visibleSize.width*3/4,
                             origin.y + visibleSize.height - pressLabel->getContentSize().height));
 
     // add the label as a child to this layer
     this->addChild(pressLabel, 1);
+
+    loadingBar = cocos2d::ui::LoadingBar::create("loading_bar.png", progression);
+
+    loadingBar->setPosition(Vec2(origin.x + loadingBar->getContentSize().width / 2.0f,origin.y + visibleSize.height - loadingBar->getContentSize().height / 2.0f + loadingBar->getContentSize().height / 4.0f));
+    this->addChild(loadingBar);
 
     buttonFadeIn(pressButton);
 
@@ -84,23 +90,27 @@ void PlayScene::modifyPressLabel(Ref* pSender)
 {
 	pressNumber ++;
 	pressLabel->setString(std::to_string(pressNumber));
-	if(1)
-	{
+	/*if(1)
+	{*/
 		pressButton->stopAllActions();
 		buttonFadeOutWithDelay(pressButton, 0.0f);
-	}
+	//}
+	if(progression < 100)
+		progression += 5;
+
+    loadingBar->setPercent(progression);
 }
 
 void PlayScene::buttonFadeIn(cocos2d::MenuItemImage* image)
 {
 	isIn = true;
-	image->runAction(Sequence::create(DelayTime::create(1), CallFunc::create(std::bind(&PlayScene::buttonLock, this, image, true)), FadeIn::create(1.0f), CallFunc::create(std::bind(&PlayScene::buttonFadeOut, this, image)), NULL));
+	image->runAction(Sequence::create(DelayTime::create(0.5f), CallFunc::create(std::bind(&PlayScene::buttonLock, this, image, true)), FadeIn::create(1.0f), CallFunc::create(std::bind(&PlayScene::buttonFadeOut, this, image)), NULL));
 }
 
 void PlayScene::buttonFadeOut(cocos2d::MenuItemImage* image)
 {
 	isIn = false;
-	image->runAction(Sequence::create(DelayTime::create(1), FadeOut::create(1.0f), CallFunc::create(std::bind(&PlayScene::buttonFadeIn, this, image)), CallFunc::create(std::bind(&PlayScene::buttonLock, this, image, false)), NULL));
+	image->runAction(Sequence::create(DelayTime::create(1), FadeOut::create(0.5f), CallFunc::create(std::bind(&PlayScene::buttonFadeIn, this, image)), CallFunc::create(std::bind(&PlayScene::buttonLock, this, image, false)), NULL));
 }
 
 void PlayScene::buttonFadeInWithDelay(cocos2d::MenuItemImage* image, float delay)
@@ -112,7 +122,7 @@ void PlayScene::buttonFadeInWithDelay(cocos2d::MenuItemImage* image, float delay
 void PlayScene::buttonFadeOutWithDelay(cocos2d::MenuItemImage* image, float delay)
 {
 	isIn = false;
-	image->runAction(Sequence::create(DelayTime::create(delay), CallFunc::create(std::bind(&PlayScene::buttonLock, this, pressButton, false)), FadeOut::create(1.0f), CallFunc::create(std::bind(&PlayScene::buttonFadeIn, this, image)), NULL));
+	image->runAction(Sequence::create(DelayTime::create(delay), CallFunc::create(std::bind(&PlayScene::buttonLock, this, pressButton, false)), FadeOut::create(0.5f), CallFunc::create(std::bind(&PlayScene::buttonFadeIn, this, image)), NULL));
 }
 
 void PlayScene::buttonLock(MenuItemImage* image, bool lock)
