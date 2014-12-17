@@ -2,6 +2,7 @@
 #define __PLAY_SCENE_H__
 
 #include "cocos2d.h"
+#include "ui/CocosGUI.h"
 
 class PlayScene : public cocos2d::Layer
 {
@@ -26,7 +27,9 @@ public:
 private:
     cocos2d::Label* pressLabel;
     cocos2d::MenuItemImage* pressButton;
-   // cocos2d::LoadingBar* loadingBar;
+    cocos2d::ui::LoadingBar* loadingBar;
+
+    float progression;
 
     std::uniform_real_distribution<float> distributionX;
     std::uniform_real_distribution<float> distributionY;
