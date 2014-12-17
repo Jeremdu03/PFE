@@ -26,6 +26,10 @@ public:
 private:
     cocos2d::Label* pressLabel;
     cocos2d::MenuItemImage* pressButton;
+   // cocos2d::LoadingBar* loadingBar;
+
+    std::uniform_real_distribution<float> distributionX;
+    std::uniform_real_distribution<float> distributionY;
 
     CREATE_FUNC(PlayScene);
 };
